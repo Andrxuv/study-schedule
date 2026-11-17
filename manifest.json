@@ -1,0 +1,31 @@
+{
+  "name": "ตารางเรียนและตารางสอบ | 2/2569",
+  "short_name": "ตารางเรียน",
+  "description": "ระบบตารางเรียนและตารางสอบอัจฉริยะ พร้อมการแจ้งเตือนคาบเรียนเข้ามือถือ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
