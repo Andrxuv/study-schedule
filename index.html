@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ตารางเรียนและตารางสอบ | 2/2569</title>
+  <meta name="theme-color" content="#121212" />
+  <link rel="manifest" href="manifest.json" />
+  <!-- iOS Safari PWA Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ตารางเรียน" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #121212;
+      --panel: #1a1a1a;
+      --panel-header: #222222;
+      --line: #2a2a2a;
+      --text: #ececec;
+      --muted: #9aa0a6;
+      --c-blue: #baddfe;
+      --c-mint: #76f9c5;
+      --c-lilac: #ad9bfa;
+      --c-rose: #f6a0ad;
+      --c-peach: #f39e6d;
+      --c-cream: #fbfd77;
+      --c-sage: #b0f887;
+      --ink: #1a1a1a;
+      --accent-green: #10b981;
+      --accent-blue: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, sans-serif;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+    }
+
+    /* Live Thailand Clock & Status Bar */
+    .live-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: linear-gradient(135deg, #1b1c23 0%, #141418 100%);
+      border: 1px solid #2e2e38;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .live-clock-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .live-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 12px var(--accent-green);
+      animation: pulse-dot 1.8s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.3);
+        opacity: 0.5;
+      }
+    }
+
+    .live-time-display {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+    }
+
+    .live-date-display {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .live-status-group {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      background: #25262f;
+      border: 1px solid #383946;
+      color: #e2e2e2;
+    }
+
+    .status-badge.active-now {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.45);
+      color: #34d399;
+    }
+
+    .status-badge.next-soon {
+      background: rgba(59, 130, 246, 0.16);
+      border-color: rgba(59, 130, 246, 0.45);
+      color: #93c5fd;
+    }
+
+    /* PWA & Notification Controls */
+    .pwa-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid #383946;
+      background: #25262f;
+      color: #e2e2e2;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .pwa-btn:hover {
+      background: #31333f;
+      border-color: #4b4d5e;
+      transform: translateY(-1px);
+    }
+
+    .pwa-btn-install {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-color: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    .pwa-btn-install:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.5);
+    }
+
+    .pwa-btn-notify.active {
+      background: rgba(16, 185, 129, 0.16);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+
+    .pwa-btn-test {
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+
+    .pwa-btn-test:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    /* iOS Helper Toast & Modal */
+    .ios-install-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e1f29;
+      border: 1px solid #3b82f6;
+      border-radius: 14px;
+      padding: 14px 20px;
+      color: #fff;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      z-index: 9999;
+      animation: slideUpToast 0.3s ease;
+      max-width: 90%;
+    }
+
+    @keyframes slideUpToast {
+      from {
+        transform: translate(-50%, 20px);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+    }
+
+    h1,
+    h2 {
+      margin: 0 0 20px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    .section-header {
+      margin-top: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: #1e1e24;
+      border: 1px solid #2d2e38;
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      background: #272832;
+      color: #ffffff;
+    }
+
+    .filter-btn.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .timetable {
+      display: grid;
+      grid-template-columns: 84px repeat(2, minmax(0, 1fr)) 48px repeat(2, minmax(0, 1fr));
+      grid-template-rows: 44px repeat(5, minmax(96px, 1fr));
+      gap: 10px;
+      min-height: calc(100vh - 180px);
+    }
+
+    .day,
+    .time {
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .time {
+      flex-direction: column;
+      line-height: 1.25;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .day {
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      position: relative;
+    }
+
+    /* Highlight Today's Day Header */
+    .day.is-today {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1.5px solid rgba(16, 185, 129, 0.45);
+      border-radius: 12px;
+      color: #34d399;
+      font-weight: 700;
+    }
+
+    .day.is-today::after {
+      content: "วันนี้";
+      position: absolute;
+      bottom: 4px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--accent-green);
+      letter-spacing: 0.3px;
+    }
+
+    .card {
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .card span {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      opacity: 0.85;
+      white-space: nowrap;
+    }
+
+    /* Highlight Active Class Card (กำลังเรียน) */
+    .card.is-active-class {
+      box-shadow: 0 0 0 2.5px #10b981, 0 8px 30px rgba(16, 185, 129, 0.45) !important;
+      animation: pulse-active-card 2s infinite alternate ease-in-out;
+      z-index: 5;
+    }
+
+    @keyframes pulse-active-card {
+      0% {
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 0 0 2px #10b981, 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      100% {
+        transform: translateY(-2px) scale(1.025);
+        box-shadow: 0 0 0 3px #34d399, 0 10px 32px rgba(52, 211, 153, 0.6);
+      }
+    }
+
+    .badge-now-studying {
+      position: absolute;
+      top: -10px;
+      right: 8px;
+      background: #059669;
+      color: #ffffff;
+      font-size: 0.66rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.5px;
+      border: 1px solid #34d399;
+      white-space: nowrap;
+      animation: bounce-subtle 1.5s infinite;
+    }
+
+    @keyframes bounce-subtle {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Highlight Today's other classes */
+    .card.is-today-class:not(.is-active-class) {
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.35);
+    }
+
+    .lunch {
+      grid-column: 4;
+      grid-row: 2 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      letter-spacing: 6px;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .lunch.is-active-lunch {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 0 0 2px #10b981;
+    }
+
+    .c-blue {
+      background: var(--c-blue);
+    }
+
+    .c-mint {
+      background: var(--c-mint);
+    }
+
+    .c-lilac {
+      background: var(--c-lilac);
+    }
+
+    .c-rose {
+      background: var(--c-rose);
+    }
+
+    .c-peach {
+      background: var(--c-peach);
+    }
+
+    .c-cream {
+      background: var(--c-cream);
+    }
+
+    .c-sage {
+      background: var(--c-sage);
+    }
+
+    /* ตารางสอบ (Exam Table) */
+    .exam-container {
+      background: var(--panel);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .exam-table-wrap {
+      overflow-x: auto;
+    }
+
+    .exam-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .exam-table th {
+      background: var(--panel-header);
+      color: var(--muted);
+      font-weight: 600;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .exam-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #232323;
+      vertical-align: middle;
+      transition: background 0.15s ease;
+    }
+
+    .exam-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .exam-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .exam-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    /* Exam Highlights */
+    .exam-table tbody tr.is-next-exam {
+      background: rgba(59, 130, 246, 0.08) !important;
+      position: relative;
+    }
+
+    .exam-table tbody tr.is-next-exam td:first-child {
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .cell-exam-highlight {
+      background: rgba(59, 130, 246, 0.12);
+      border-radius: 8px;
+      padding: 6px 10px !important;
+    }
+
+    .badge-code {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 0.86rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .course-title-en {
+      font-weight: 600;
+      color: var(--text);
+      display: block;
+      line-height: 1.35;
+    }
+
+    .course-title-th {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: block;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .exam-date {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .exam-time {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .countdown-text {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #60a5fa;
+      margin-top: 3px;
+      display: inline-block;
+    }
+
+    .next-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: #2563eb;
+      color: #ffffff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    .type-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #2b2b2b;
+      color: #dfdfdf;
+      border: 1px solid #3d3d3d;
+    }
+
+    .no-exam {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .exam-notes {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.6;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 800px) {
+      .timetable {
+        min-width: 760px;
+      }
+
+      .exam-table {
+        min-width: 720px;
+      }
+
+      .page {
+        overflow-x: auto;
+      }
+
+      .live-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <!-- Live Thailand Time & Study Status Bar -->
+    <header class="live-bar" aria-label="เวลาปัจจุบันและสถานะการเรียน">
+      <div class="live-clock-wrapper">
+        <div class="live-dot" id="liveDot" title="กำลังทำงานแบบเรียลไทม์"></div>
+        <div>
+          <div class="live-time-display" id="clockTime">--:--:-- น.</div>
+          <div class="live-date-display" id="clockDate">กำลังโหลดวันที่และเวลาประเทศไทย...</div>
+        </div>
+      </div>
+      <div class="live-status-group">
+        <div class="status-badge" id="studyStatusBadge">
+          <span>กำลังตรวจสอบสถานะคาบเรียน...</span>
+        </div>
+        <!-- PWA Controls -->
+        <button class="pwa-btn pwa-btn-notify" id="btnToggleNotify" type="button" title="เปิด/ปิดการแจ้งเตือนตารางเรียน">
+          <span class="icon">🔔</span> <span id="notifyBtnText">เปิดแจ้งเตือน</span>
+        </button>
+        <button class="pwa-btn pwa-btn-test" id="btnTestNotify" type="button" title="ทดสอบส่งการแจ้งเตือนเข้าเครื่อง" style="display: none;">
+          <span class="icon">⚡</span> <span>ทดสอบข้อความ</span>
+        </button>
+        <button class="pwa-btn pwa-btn-install" id="btnInstallPwa" type="button" style="display: none;" title="ติดตั้งแอพลงเครื่อง">
+          <span class="icon">📲</span> <span>ติดตั้งแอป</span>
+        </button>
+      </div>
+    </header>
+
+    <h1>Class Schedule · Semester 2/2026</h1>
+    <section class="timetable" aria-label="Class Schedule">
+      <!-- หัวตาราง (เวลา) -->
+      <div></div>
+      <div class="time" data-slot="08:00-09:50">08:00 - 09:50</div>
+      <div class="time" data-slot="10:00-11:50">10:00 - 11:50</div>
+      <div class="time" data-slot="12:00-13:00">12:00<br />13:00</div>
+      <div class="time" data-slot="13:00-14:50">13:00 - 14:50</div>
+      <div class="time" data-slot="15:00-16:50">15:00 - 16:50</div>
+
+      <!-- แถบพักกลางวันแนวตั้ง (ครอบคลุมแถว 2 ถึง 6 ของคอลัมน์ที่ 4) -->
+      <div class="lunch" id="lunchBreak">LUNCH BREAK</div>
+
+      <!-- วันจันทร์ (MON = Day 1) -->
+      <div class="day" data-day="1">MON</div>
+      <article class="card c-blue" data-day="1" data-start="08:00" data-end="09:50" data-name="Platform Technology">
+        <strong>Platform Technology</strong>
+        <span>273364 · SC2-414</span>
+      </article>
+      <div></div>
+      <article class="card c-peach" data-day="1" data-start="13:00" data-end="14:50"
+        data-name="Information System Project Management">
+        <strong>Information System Project Management</strong>
+        <span>273352 · SC2-408</span>
+      </article>
+      <div></div>
+
+      <!-- วันอังคาร (TU = Day 2) -->
+      <div class="day" data-day="2">TU</div>
+      <article class="card c-mint" data-day="2" data-start="08:00" data-end="09:50"
+        data-name="Server Side Web Programming">
+        <strong>Server Side Web Programming</strong>
+        <span>273372 · SC2-414</span>
+      </article>
+      <article class="card c-rose" data-day="2" data-start="10:00" data-end="11:50"
+        data-name="Information Assurance and Security">
+        <strong>Information Assurance and Security</strong>
+        <span>273363 · SC1-213</span>
+      </article>
+      <div></div>
+      <article class="card c-lilac" data-day="2" data-start="15:00" data-end="16:50"
+        data-name="Data Analysis for Business Management">
+        <strong>Data Analysis for Business Management</strong>
+        <span>273341 · SC2-214</span>
+      </article>
+
+      <!-- วันพุธ (WED = Day 3) -->
+      <div class="day" data-day="3">WED</div>
+      <article class="card c-lilac" data-day="3" data-start="08:00" data-end="09:50"
+        data-name="Data Analysis for Business Management">
+        <strong>Data Analysis for Business Management</strong>
+        <span>273341 · SC2-414</span>
+      </article>
+      <article class="card c-rose" data-day="3" data-start="10:00" data-end="11:50"
+        data-name="Information Assurance and Security">
+        <strong>Information Assurance and Security</strong>
+        <span>273363 · SC2-308</span>
+      </article>
+      <article class="card c-cream" data-day="3" data-start="13:00" data-end="14:50"
+        data-name="Sensing and Actuation for IoT">
+        <strong>Sensing and Actuation for IoT</strong>
+        <span>254483 · SC2-211</span>
+      </article>
+      <div></div>
+
+      <!-- วันพฤหัสบดี (THU = Day 4) -->
+      <div class="day" data-day="4">THU</div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <article class="card c-sage" data-day="4" data-start="15:00" data-end="16:50" data-name="Seminar">
+        <strong>Seminar</strong>
+        <span>273391 · SC2-212</span>
+      </article>
+
+      <!-- วันศุกร์ (FRI = Day 5) -->
+      <div class="day" data-day="5">FRI</div>
+      <article class="card c-mint" data-day="5" data-start="08:00" data-end="09:50"
+        data-name="Server Side Web Programming">
+        <strong>Server Side Web Programming</strong>
+        <span>273372 · SC2-414</span>
+      </article>
+      <article class="card c-peach" data-day="5" data-start="10:00" data-end="11:50"
+        data-name="Information System Project Management">
+        <strong>Information System Project Management</strong>
+        <span>273352 · SC2-208</span>
+      </article>
+      <article class="card c-cream" data-day="5" data-start="13:00" data-end="14:50"
+        data-name="Sensing and Actuation for IoT">
+        <strong>Sensing and Actuation for IoT</strong>
+        <span>254483 · SC2-308</span>
+      </article>
+      <article class="card c-blue" data-day="5" data-start="15:00" data-end="16:50" data-name="Platform Technology">
+        <strong>Platform Technology</strong>
+        <span>273364 · SC2-214</span>
+      </article>
+    </section>
+
+    <!-- ตารางสอบ (Exam Schedule) -->
+    <div class="section-header">
+      <h2>Exam Schedule · ตารางสอบ</h2>
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+        <button class="filter-btn" data-filter="midterm">สอบกลางภาค</button>
+        <button class="filter-btn" data-filter="final">สอบปลายภาค</button>
+        <button class="filter-btn" data-filter="upcoming">สอบที่ใกล้ถึงที่สุด</button>
+      </div>
+    </div>
+
+    <section class="exam-container" aria-label="Exam Schedule">
+      <div class="exam-table-wrap">
+        <table class="exam-table" id="examTable">
+          <thead>
+            <tr>
+              <th style="width: 120px;">รหัสวิชา</th>
+              <th>ชื่อรายวิชา</th>
+              <th class="text-center" style="width: 70px;">กลุ่ม</th>
+              <th style="width: 230px;">สอบกลางภาค</th>
+              <th style="width: 230px;">สอบปลายภาค</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-course="254483-3" data-midterm="2027-01-15T11:30:00+07:00" data-final="2027-03-12T11:30:00+07:00">
+              <td><span class="badge-code c-cream">254483-3</span></td>
+              <td>
+                <span class="course-title-en">Sensing and Actuation for Internet of Things</span>
+                <span class="course-title-th">การตรวจวัดสัญญาณและการดำเนินงานสำหรับอินเทอร์เน็ตของสรรพสิ่ง</span>
+              </td>
+              <td class="text-center"><strong>2</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 15 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 11:30 - 14:30</div>
+                <div class="countdown-text" data-date="2027-01-15T11:30:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 12 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 11:30 - 14:30</div>
+                <div class="countdown-text" data-date="2027-03-12T11:30:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273341-1" data-midterm="2027-01-11T15:00:00+07:00" data-final="2027-03-08T15:00:00+07:00">
+              <td><span class="badge-code c-lilac">273341-1</span></td>
+              <td>
+                <span class="course-title-en">Data Analysis for Business Management</span>
+                <span class="course-title-th">การวิเคราะห์ข้อมูลสำหรับการจัดการทางธุรกิจ</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 11 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 15:00 - 18:00</div>
+                <div class="countdown-text" data-date="2027-01-11T15:00:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 8 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 15:00 - 18:00</div>
+                <div class="countdown-text" data-date="2027-03-08T15:00:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273352-2" data-midterm="2027-01-13T08:00:00+07:00" data-final="2027-03-15T11:30:00+07:00">
+              <td><span class="badge-code c-peach">273352-2</span></td>
+              <td>
+                <span class="course-title-en">Information System Project Management</span>
+                <span class="course-title-th">การจัดการโครงการด้านระบบสารสนเทศ</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 13 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 08:00 - 11:00</div>
+                <div class="countdown-text" data-date="2027-01-13T08:00:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 15 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 11:30 - 14:30</div>
+                <div class="countdown-text" data-date="2027-03-15T11:30:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273363-1" data-midterm="2027-01-11T08:00:00+07:00" data-final="2027-03-08T08:00:00+07:00">
+              <td><span class="badge-code c-rose">273363-1</span></td>
+              <td>
+                <span class="course-title-en">Information Assurance and Security</span>
+                <span class="course-title-th">ความมั่นคงและการประกันสารสนเทศ</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 11 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 08:00 - 11:00</div>
+                <div class="countdown-text" data-date="2027-01-11T08:00:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 8 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 08:00 - 11:00</div>
+                <div class="countdown-text" data-date="2027-03-08T08:00:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273364-1" data-midterm="2027-01-15T15:00:00+07:00" data-final="2027-03-16T11:30:00+07:00">
+              <td><span class="badge-code c-blue">273364-1</span></td>
+              <td>
+                <span class="course-title-en">Platform Technology</span>
+                <span class="course-title-th">เทคโนโลยีแพลตฟอร์ม</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 15 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 15:00 - 18:00</div>
+                <div class="countdown-text" data-date="2027-01-15T15:00:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 16 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 11:30 - 14:30</div>
+                <div class="countdown-text" data-date="2027-03-16T11:30:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273372-2" data-midterm="2027-01-14T08:00:00+07:00" data-final="2027-03-11T08:00:00+07:00">
+              <td><span class="badge-code c-mint">273372-2</span></td>
+              <td>
+                <span class="course-title-en">Server Side Web Programming</span>
+                <span class="course-title-th">การเขียนโปรแกรมเว็บฝั่งเซิร์ฟเวอร์</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td class="exam-cell-midterm">
+                <div class="exam-date"><span class="type-pill">C</span> 14 ม.ค. 2570</div>
+                <div class="exam-time">เวลา 08:00 - 11:00</div>
+                <div class="countdown-text" data-date="2027-01-14T08:00:00+07:00"></div>
+              </td>
+              <td class="exam-cell-final">
+                <div class="exam-date"><span class="type-pill">C</span> 11 มี.ค. 2570</div>
+                <div class="exam-time">เวลา 08:00 - 11:00</div>
+                <div class="countdown-text" data-date="2027-03-11T08:00:00+07:00"></div>
+              </td>
+            </tr>
+            <tr data-course="273391-1" data-midterm="" data-final="">
+              <td><span class="badge-code c-sage">273391-1</span></td>
+              <td>
+                <span class="course-title-en">Seminar</span>
+                <span class="course-title-th">สัมมนา</span>
+              </td>
+              <td class="text-center"><strong>1</strong></td>
+              <td>
+                <span class="no-exam">-</span>
+              </td>
+              <td>
+                <span class="no-exam">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    (function () {
+      // วันในสัปดาห์ภาษาไทย
+      const thaiDayNames = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
+      const thaiMonthNames = [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ];
+
+      // ดึงเวลาในเขตประเทศไทย (Asia/Bangkok)
+      function getBangkokDate() {
+        const now = new Date();
+        const bkkString = now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
+        return new Date(bkkString);
+      }
+
+      function updateClockAndHighlights() {
+        const now = getBangkokDate();
+        const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+        const dayOfMonth = now.getDate();
+        const monthIndex = now.getMonth();
+        const yearBE = now.getFullYear() + 543;
+
+        const hours = String(now.getHours()).padStart(2, "0");
+        const mins = String(now.getMinutes()).padStart(2, "0");
+        const secs = String(now.getSeconds()).padStart(2, "0");
+        const currentHM = `${hours}:${mins}`;
+
+        // แสดงผลนาฬิกา
+        const clockTimeEl = document.getElementById("clockTime");
+        const clockDateEl = document.getElementById("clockDate");
+        if (clockTimeEl) {
+          clockTimeEl.textContent = `${hours}:${mins}:${secs} น.`;
+        }
+        if (clockDateEl) {
+          clockDateEl.textContent = `${thaiDayNames[dayOfWeek]}ที่ ${dayOfMonth} ${thaiMonthNames[monthIndex]} พ.ศ. ${yearBE} (เวลาประเทศไทย ICT · UTC+7)`;
+        }
+
+        // 1. ไฮไลต์วันปัจจุบันในตารางเรียน (MON - FRI คือ day 1 - 5)
+        document.querySelectorAll(".timetable .day").forEach((el) => {
+          const d = parseInt(el.getAttribute("data-day"), 10);
+          if (d === dayOfWeek) {
+            el.classList.add("is-today");
+          } else {
+            el.classList.remove("is-today");
+          }
+        });
+
+        // 2. ไฮไลต์คาบเรียนที่กำลังเรียนอยู่ หรือคาบของวันนี้
+        const cards = document.querySelectorAll(".timetable .card");
+        let activeCard = null;
+        let todayClasses = [];
+        let nextClass = null;
+
+        cards.forEach((card) => {
+          // ลบ badge กำลังเรียนเดิม
+          const existingBadge = card.querySelector(".badge-now-studying");
+          if (existingBadge) existingBadge.remove();
+          card.classList.remove("is-active-class", "is-today-class");
+
+          const cardDay = parseInt(card.getAttribute("data-day"), 10);
+          const start = card.getAttribute("data-start");
+          const end = card.getAttribute("data-end");
+          const name = card.getAttribute("data-name");
+
+          if (cardDay === dayOfWeek) {
+            todayClasses.push({ card, start, end, name });
+
+            // ตรวจสอบว่าเวลาปัจจุบันอยู่ในช่วงเวลาเรียนนี้หรือไม่
+            if (currentHM >= start && currentHM <= end) {
+              activeCard = { card, name, start, end };
+              card.classList.add("is-active-class");
+              const b = document.createElement("div");
+              b.className = "badge-now-studying";
+              b.textContent = "มีเรียน";
+              card.appendChild(b);
+            } else {
+              card.classList.add("is-today-class");
+              if (currentHM < start && (!nextClass || start < nextClass.start)) {
+                nextClass = { card, name, start, end, dayName: "วันนี้" };
+              }
+            }
+          } else if (cardDay > dayOfWeek && !nextClass) {
+            nextClass = { card, name, start, end, dayName: cardDay === 2 ? "วันอังคาร" : cardDay === 3 ? "วันพุธ" : cardDay === 4 ? "วันพฤหัสบดี" : "วันศุกร์" };
+          }
+        });
+
+        // ตรวจสอบช่วงพักกลางวัน (12:00 - 13:00)
+        const lunchEl = document.getElementById("lunchBreak");
+        const isLunchTime = dayOfWeek >= 1 && dayOfWeek <= 5 && currentHM >= "12:00" && currentHM < "13:00";
+        if (lunchEl) {
+          if (isLunchTime) {
+            lunchEl.classList.add("is-active-lunch");
+          } else {
+            lunchEl.classList.remove("is-active-lunch");
+          }
+        }
+
+        // แสดงผลข้อความสถานะที่ Live Bar
+        const statusBadge = document.getElementById("studyStatusBadge");
+        if (statusBadge) {
+          if (activeCard) {
+            statusBadge.className = "status-badge active-now";
+            statusBadge.innerHTML = `<strong>กำลังเรียน:</strong> ${activeCard.name} (${activeCard.start} - ${activeCard.end} น.)`;
+          } else if (isLunchTime) {
+            statusBadge.className = "status-badge active-now";
+            statusBadge.innerHTML = `<strong>ขณะนี้:</strong> พักกลางวัน (12:00 - 13:00 น.)`;
+          } else if (nextClass) {
+            statusBadge.className = "status-badge next-soon";
+            statusBadge.innerHTML = `<strong>คาบถัดไป:</strong> ${nextClass.dayName} ${nextClass.start} น. · ${nextClass.name}`;
+          } else {
+            statusBadge.className = "status-badge";
+            statusBadge.innerHTML = `วันนี้ไม่มีคาบเรียนต่อแล้ว`;
+          }
+        }
+
+        // 3. คำนวณวันสอบและนับถอยหลัง (Countdown)
+        updateExamCountdowns(now);
+      }
+
+      function updateExamCountdowns(now) {
+        let minDiff = Infinity;
+        let nextExamRow = null;
+
+        document.querySelectorAll("#examTable tbody tr").forEach((tr) => {
+          const midtermStr = tr.getAttribute("data-midterm");
+          const finalStr = tr.getAttribute("data-final");
+          tr.classList.remove("is-next-exam");
+
+          // ลบ tag เดิม
+          const oldTags = tr.querySelectorAll(".next-tag");
+          oldTags.forEach(t => t.remove());
+
+          [
+            { str: midtermStr, cellClass: ".exam-cell-midterm" },
+            { str: finalStr, cellClass: ".exam-cell-final" }
+          ].forEach(({ str, cellClass }) => {
+            if (!str) return;
+            const examTime = new Date(str).getTime();
+            const diffMs = examTime - now.getTime();
+            const cell = tr.querySelector(cellClass);
+            const countdownEl = cell ? cell.querySelector(".countdown-text") : null;
+
+            if (diffMs > 0 && diffMs < minDiff) {
+              minDiff = diffMs;
+              nextExamRow = { tr, cell };
+            }
+
+            if (countdownEl) {
+              if (diffMs > 0) {
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                countdownEl.textContent = ` อีก ${diffDays} วัน ${diffHours} ชม.`;
+              } else if (diffMs > -1000 * 60 * 60 * 3) {
+                countdownEl.textContent = `กำลังสอบในขณะนี้!`;
+                countdownEl.style.color = "#f87171";
+              } else {
+                countdownEl.textContent = `✓ สอบเสร็จสิ้นแล้ว`;
+                countdownEl.style.color = "#9aa0a6";
+              }
+            }
+          });
+        });
+
+        // ไฮไลต์การสอบที่ใกล้ถึงที่สุด
+        if (nextExamRow) {
+          nextExamRow.tr.classList.add("is-next-exam");
+          if (nextExamRow.cell) {
+            const dateEl = nextExamRow.cell.querySelector(".exam-date");
+            if (dateEl && !dateEl.querySelector(".next-tag")) {
+              const tag = document.createElement("span");
+              tag.className = "next-tag";
+              tag.textContent = "สอบถัดไป";
+              dateEl.appendChild(tag);
+            }
+          }
+        }
+      }
+
+      // ระบบปุ่มฟิลเตอร์ตารางสอบ
+      const filterBtns = document.querySelectorAll(".filter-btn");
+      filterBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          filterBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const mode = btn.getAttribute("data-filter");
+
+          const midtermCells = document.querySelectorAll(".exam-cell-midterm");
+          const finalCells = document.querySelectorAll(".exam-cell-final");
+          const rows = document.querySelectorAll("#examTable tbody tr");
+
+          // รีเซ็ตการเน้น
+          midtermCells.forEach((c) => c.classList.remove("cell-exam-highlight"));
+          finalCells.forEach((c) => c.classList.remove("cell-exam-highlight"));
+          rows.forEach((r) => (r.style.display = ""));
+
+          if (mode === "midterm") {
+            midtermCells.forEach((c) => c.classList.add("cell-exam-highlight"));
+          } else if (mode === "final") {
+            finalCells.forEach((c) => c.classList.add("cell-exam-highlight"));
+          } else if (mode === "upcoming") {
+            rows.forEach((r) => {
+              if (!r.classList.contains("is-next-exam") && r.getAttribute("data-course") !== "273391-1") {
+                r.style.opacity = "0.4";
+              } else {
+                r.style.opacity = "1";
+              }
+            });
+          } else {
+            rows.forEach((r) => (r.style.opacity = "1"));
+          }
+        });
+      });
+
+      // รันการอัปเดตทุกๆ 1 วินาที
+      updateClockAndHighlights();
+      setInterval(updateClockAndHighlights, 1000);
+
+      // ==========================================
+      // PWA & Notification Integration
+      // ==========================================
+      let swRegistration = null;
+
+      // 1. ลงทะเบียน Service Worker
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => {
+              swRegistration = reg;
+              console.log("[PWA] Service Worker registered with scope:", reg.scope);
+            })
+            .catch((err) => {
+              console.warn("[PWA] Service Worker registration failed:", err);
+            });
+        });
+      }
+
+      // 2. การติดตั้งแอป (PWA Install Prompt)
+      let deferredPrompt = null;
+      const btnInstall = document.getElementById("btnInstallPwa");
+      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+
+      if (!isStandalone) {
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          if (btnInstall) {
+            btnInstall.style.display = "inline-flex";
+          }
+        });
+
+        if (isIos && btnInstall) {
+          btnInstall.style.display = "inline-flex";
+          btnInstall.innerHTML = '<span class="icon">📲</span> <span>ติดตั้งบน iPhone</span>';
+        }
+
+        if (btnInstall) {
+          btnInstall.addEventListener("click", async () => {
+            if (deferredPrompt) {
+              deferredPrompt.prompt();
+              const { outcome } = await deferredPrompt.userChoice;
+              if (outcome === "accepted") {
+                btnInstall.style.display = "none";
+              }
+              deferredPrompt = null;
+            } else if (isIos) {
+              showIosInstallGuide();
+            }
+          });
+        }
+      }
+
+      function showIosInstallGuide() {
+        const existing = document.querySelector(".ios-install-toast");
+        if (existing) existing.remove();
+        const toast = document.createElement("div");
+        toast.className = "ios-install-toast";
+        toast.innerHTML = `
+          <span>📲 <strong>ติดตั้งบน iPhone/Safari:</strong> แตะปุ่ม <strong>แชร์ [⎋]</strong> แล้วเลือก <strong>"เพิ่มไปยังหน้าจอโฮม"</strong></span>
+          <button style="background:none;border:none;color:#9aa0a6;font-size:1.1rem;cursor:pointer;margin-left:8px;" onclick="this.parentElement.remove()">✕</button>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 9000);
+      }
+
+      // 3. ระบบแจ้งเตือน (Push Notifications)
+      const btnNotify = document.getElementById("btnToggleNotify");
+      const btnTest = document.getElementById("btnTestNotify");
+      const notifyText = document.getElementById("notifyBtnText");
+
+      function updateNotificationUI() {
+        if (!("Notification" in window)) {
+          if (btnNotify) {
+            btnNotify.title = "เบราว์เซอร์นี้ยังไม่รองรับ Web Notification";
+            notifyText.textContent = "ไม่รองรับแจ้งเตือน";
+          }
+          return;
+        }
+
+        if (Notification.permission === "granted") {
+          if (btnNotify) {
+            btnNotify.classList.add("active");
+            notifyText.textContent = "แจ้งเตือน: เปิดแล้ว";
+          }
+          if (btnTest) btnTest.style.display = "inline-flex";
+        } else if (Notification.permission === "denied") {
+          if (btnNotify) {
+            btnNotify.classList.remove("active");
+            notifyText.textContent = "แจ้งเตือน: ถูกปิดกั้น";
+          }
+          if (btnTest) btnTest.style.display = "none";
+        } else {
+          if (btnNotify) {
+            btnNotify.classList.remove("active");
+            notifyText.textContent = "เปิดแจ้งเตือน";
+          }
+          if (btnTest) btnTest.style.display = "none";
+        }
+      }
+
+      updateNotificationUI();
+
+      if (btnNotify) {
+        btnNotify.addEventListener("click", async () => {
+          if (!("Notification" in window)) {
+            alert("เบราว์เซอร์นี้ยังไม่รองรับ Web Notification");
+            return;
+          }
+
+          if (Notification.permission === "granted") {
+            sendCampusNotification(
+              "ตารางเรียนเปิดแจ้งเตือนอยู่แล้ว ✓",
+              "คุณจะได้รับการแจ้งเตือนก่อนเริ่มคาบ 15 นาที และข้อความกิจกรรมสำคัญ"
+            );
+            return;
+          }
+
+          try {
+            const perm = await Notification.requestPermission();
+            updateNotificationUI();
+            if (perm === "granted") {
+              sendCampusNotification(
+                "เปิดการแจ้งเตือนสำเร็จ! 🎉",
+                "ระบบจะแจ้งเตือนคาบเรียนของวันนี้และแจ้งเตือนก่อนเข้าเรียน 15 นาที"
+              );
+            }
+          } catch (e) {
+            console.error("Error requesting notification permission:", e);
+          }
+        });
+      }
+
+      if (btnTest) {
+        btnTest.addEventListener("click", () => {
+          sendCampusNotification(
+            "🔔 เตือนก่อนเริ่มคาบ 15 นาที (ทดสอบ)",
+            "วิชา Server Side Web Programming (08:00 - 09:50 น.) ที่ห้อง SC2-414 กำลังจะเริ่มแล้ว!"
+          );
+        });
+      }
+
+      function sendCampusNotification(title, body) {
+        if (swRegistration && swRegistration.showNotification) {
+          swRegistration.showNotification(title, {
+            body: body,
+            icon: "./icon-192.png",
+            badge: "./icon-192.png",
+            vibrate: [200, 100, 200],
+            tag: "schedule-alert-" + Date.now(),
+            renotify: true
+          });
+        } else if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(title, {
+            body: body,
+            icon: "./icon-192.png"
+          });
+        }
+      }
+
+      // ระบบแจ้งเตือนอัตโนมัติก่อนเริ่มคาบ 15 นาที
+      const notifiedSlots = new Set();
+      function checkAutoScheduleAlerts() {
+        if (Notification.permission !== "granted") return;
+
+        const now = new Date();
+        const bangkokNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Bangkok" }));
+        const day = bangkokNow.getDay();
+        const currentH = bangkokNow.getHours();
+        const currentM = bangkokNow.getMinutes();
+        const currentTotalMin = currentH * 60 + currentM;
+
+        document.querySelectorAll(`.card[data-day="${day}"]`).forEach((card) => {
+          const start = card.getAttribute("data-start");
+          const name = card.getAttribute("data-name");
+          if (!start || !name) return;
+
+          const [sh, sm] = start.split(":").map(Number);
+          const startTotalMin = sh * 60 + sm;
+          const diffMin = startTotalMin - currentTotalMin;
+
+          const slotKey = `${day}-${start}-${name}`;
+          // แจ้งเตือนเมื่อเหลือเวลา 10 - 15 นาทีก่อนเริ่มคาบ
+          if (diffMin >= 10 && diffMin <= 15 && !notifiedSlots.has(slotKey)) {
+            notifiedSlots.add(slotKey);
+            sendCampusNotification(
+              `🔔 คาบเรียนจะเริ่มในอีก ${diffMin} นาที!`,
+              `วิชา ${name} เริ่มเวลา ${start} น. กรุณาเตรียมตัวเข้าห้องเรียน`
+            );
+          }
+        });
+      }
+
+      // ตรวจสอบคาบเรียนทุก 1 นาที
+      setInterval(checkAutoScheduleAlerts, 60000);
+      checkAutoScheduleAlerts();
+    })();
+  </script>
+</body>
+
+</html>

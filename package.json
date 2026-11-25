@@ -1,0 +1,11 @@
+{
+  "name": "campus-schedule",
+  "version": "1.0.0",
+  "description": "Smart Campus Schedule & Exam Timetable PWA",
+  "scripts": {
+    "start": "serve ."
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
