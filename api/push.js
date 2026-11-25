@@ -1,40 +1,47 @@
-// Example Vercel Serverless Function: /api/push.js
-// ใช้สำหรับยิง Push Notification จากหลังบ้านหรือ Vercel เข้ามือถือของผู้ใช้
+// Vercel Serverless Function: /api/push.js
+// Handles Web Push Notifications and Health Checks
 
 const webpush = require('web-push');
 
-// คุณสามารถสร้าง VAPID keys ได้ด้วยคำสั่ง: npx web-push generate-vapid-keys
-const publicVapidKey = process.env.VAPID_PUBLIC_KEY || 'YOUR_PUBLIC_VAPID_KEY';
-const privateVapidKey = process.env.VAPID_PRIVATE_KEY || 'YOUR_PRIVATE_VAPID_KEY';
+// Default generated VAPID keys (can be overridden via Vercel Environment Variables)
+const publicVapidKey = process.env.VAPID_PUBLIC_KEY || 'BLvE8hkx_h7vufFs2c-Gcs2CuvLc-nUhJ4lnpQEiGV_oQ8d4mAr-Cpn6ymiEZqsXHr7bvj3Sqqv6Bk6eZ2Y--tE';
+const privateVapidKey = process.env.VAPID_PRIVATE_KEY || 'dGAD7oM3WyjX_Rbh9-L-2a1XpQc5EABWTlLa5vWooZA';
 
-webpush.setVapidDetails(
-  'mailto:admin@campusschedule.app',
-  publicVapidKey,
-  privateVapidKey
-);
+try {
+  webpush.setVapidDetails(
+    'mailto:admin@campusschedule.app',
+    publicVapidKey,
+    privateVapidKey
+  );
+} catch (err) {
+  console.warn('VAPID setup warning:', err.message);
+}
 
 module.exports = async (req, res) => {
-  // Support GET request for browser health check and cron-job.org testing
+  // 1. Health Check (GET request from browser or cron-job.org)
   if (req.method === 'GET') {
     return res.status(200).json({
       status: 'online',
-      message: 'CampusSchedule Push Notification API is active!',
+      service: 'CampusSchedule Notification API',
+      message: 'Push notification service is active and ready!',
+      publicKey: publicVapidKey,
       timestamp: new Date().toISOString()
     });
   }
 
+  // 2. Push Notification Trigger (POST request)
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { subscription, title, body, url } = req.body;
+  const { subscription, title, body, url } = req.body || {};
 
   if (!subscription) {
-    return res.status(400).json({ error: 'Missing push subscription object' });
+    return res.status(400).json({ error: 'Missing push subscription object in request body' });
   }
 
   const payload = JSON.stringify({
-    title: title || 'แจ้งเตือนตารางเรียน',
+    title: title || 'แจ้งเตือนตารางเรียน 🔔',
     body: body || 'มีการอัปเดตคาบเรียนหรือกิจกรรมใหม่!',
     icon: './icon-192.png',
     badge: './icon-192.png',
